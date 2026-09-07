@@ -1,0 +1,22 @@
+[Unit]
+Description=Telegram video-to-conspect bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=botuser
+WorkingDirectory=/opt/new_tg_bot
+EnvironmentFile=/opt/new_tg_bot/.env
+ExecStart=/opt/new_tg_bot/.venv/bin/python bot.py
+Restart=on-failure
+RestartSec=5
+
+# Небольшая песочница — процесс не root и не может писать вне своей папки
+# (кроме logs/, которая внутри WorkingDirectory) и /tmp (нужен для скачивания).
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/opt/new_tg_bot/logs /tmp
+
+[Install]
+WantedBy=multi-user.target
