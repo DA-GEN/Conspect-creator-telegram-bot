@@ -1,4 +1,4 @@
-# new_tg_bot
+# Сonspect_creator_bot
 
 Telegram-бот, который скачивает видео (YouTube, TikTok, Instagram),
 расшифровывает аудиодорожку в текст, анализирует несколько кадров видео и
