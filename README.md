@@ -1,4 +1,4 @@
-# Сonspect_creator_bot
+# conspect_creator_bot
 
 Telegram-бот, который скачивает видео (YouTube, TikTok, Instagram),
 расшифровывает аудиодорожку в текст, анализирует несколько кадров видео и
@@ -148,3 +148,7 @@ limit) — можно поднять `VISION_BATCH_CONCURRENCY` в конфиг�
 Как опубликовать репозиторий на GitHub и запустить бота на хостинге
 (Docker, VPS с systemd или PaaS) — подробно в **[DEPLOY.md](DEPLOY.md)**.
 Готовы `Dockerfile`, `docker-compose.yml` и `deploy/bot.service`.
+
+## Лицензия
+
+[MIT](LICENSE)

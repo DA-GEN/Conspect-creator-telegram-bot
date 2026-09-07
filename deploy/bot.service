@@ -6,9 +6,9 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=botuser
-WorkingDirectory=/opt/new_tg_bot
-EnvironmentFile=/opt/new_tg_bot/.env
-ExecStart=/opt/new_tg_bot/.venv/bin/python bot.py
+WorkingDirectory=/opt/conspect_creator_bot
+EnvironmentFile=/opt/conspect_creator_bot/.env
+ExecStart=/opt/conspect_creator_bot/.venv/bin/python bot.py
 Restart=on-failure
 RestartSec=5
 
@@ -16,7 +16,7 @@ RestartSec=5
 # (кроме logs/, которая внутри WorkingDirectory) и /tmp (нужен для скачивания).
 NoNewPrivileges=true
 ProtectSystem=strict
-ReadWritePaths=/opt/new_tg_bot/logs /tmp
+ReadWritePaths=/opt/conspect_creator_bot/logs /tmp
 
 [Install]
 WantedBy=multi-user.target

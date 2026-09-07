@@ -25,10 +25,10 @@
 # 1. Создать пустой репозиторий на GitHub (без README/license — они уже есть)
 #    Через веб: https://github.com/new
 #    Либо через gh CLI, если установлен:
-gh repo create YOUR_USERNAME/new_tg_bot --private --source=. --remote=origin
+gh repo create YOUR_USERNAME/conspect_creator_bot --private --source=. --remote=origin
 
 # 2. Если создавал через веб-интерфейс — подключить remote вручную:
-git remote add origin git@github.com:YOUR_USERNAME/new_tg_bot.git
+git remote add origin git@github.com:YOUR_USERNAME/conspect_creator_bot.git
 
 # 3. Закоммитить текущее состояние (если ещё не закоммичено)
 git add .
@@ -65,7 +65,7 @@ process" (не обычный web-сервис на HTTP).
 ```bash
 # На сервере: склонировать репозиторий и создать .env с реальными токенами
 git clone <URL_твоего_репозитория>
-cd new_tg_bot
+cd conspect_creator_bot
 cp .env.example .env
 nano .env   # вписать BOT_TOKEN и GROQ_API_KEY
 
@@ -95,11 +95,11 @@ Tier и т.п.), а также PaaS с поддержкой Dockerfile (Railway,
 ```bash
 # На сервере
 sudo useradd --system --create-home botuser
-sudo mkdir -p /opt/new_tg_bot
-sudo chown botuser:botuser /opt/new_tg_bot
+sudo mkdir -p /opt/conspect_creator_bot
+sudo chown botuser:botuser /opt/conspect_creator_bot
 
-sudo -u botuser git clone <URL_твоего_репозитория> /opt/new_tg_bot
-cd /opt/new_tg_bot
+sudo -u botuser git clone <URL_твоего_репозитория> /opt/conspect_creator_bot
+cd /opt/conspect_creator_bot
 sudo apt install -y ffmpeg python3-venv
 sudo -u botuser python3 -m venv .venv
 sudo -u botuser .venv/bin/pip install -r requirements.txt
