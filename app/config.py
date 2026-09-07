@@ -15,6 +15,13 @@ if not BOT_TOKEN:
 if not GROQ_API_KEY:
     raise RuntimeError("GROQ_API_KEY не найден. Заполните .env (см. .env.example).")
 
+# Render (и подобные PaaS) сами прокидывают RENDER_EXTERNAL_URL и PORT для
+# веб-сервисов — их наличие используем как признак "запущены на Render,
+# нужен webhook", иначе (локально, на VPS) бот работает через polling.
+RENDER_EXTERNAL_URL = os.getenv("RENDER_EXTERNAL_URL")
+PORT = int(os.getenv("PORT", "10000"))
+WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "")
+
 STT_MODEL = "whisper-large-v3"
 LLM_MODEL_PRIMARY = "openai/gpt-oss-20b"
 # Раньше тут стоял qwen/qwen3.8-27b — та же модель, что VISION_MODEL_PRIMARY.
