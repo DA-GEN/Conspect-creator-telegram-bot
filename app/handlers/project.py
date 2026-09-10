@@ -6,7 +6,6 @@ import logging
 import shutil
 import tempfile
 import uuid
-from typing import List
 
 from aiogram import Router
 from aiogram.filters import Command
@@ -63,7 +62,7 @@ async def cmd_finishproject(message: Message) -> None:
     await process_project(message, urls)
 
 
-async def process_project(message: Message, urls: List[str]) -> None:
+async def process_project(message: Message, urls: list[str]) -> None:
     """Обрабатывает все ссылки проекта и присылает один общий конспект,
     сгруппированный ИИ по темам видео. Видео обрабатываются параллельно (с
     ограничением PROJECT_CONCURRENCY, чтобы не словить rate limit Groq разом) —
@@ -84,7 +83,7 @@ async def process_project(message: Message, urls: List[str]) -> None:
 
     # gather сохраняет порядок результатов по порядку corutin на входе, а не по
     # порядку завершения — нумерация "Видео N" ниже остаётся стабильной.
-    results: List[VideoResult] = await asyncio.gather(*(process_one(url) for url in urls))
+    results: list[VideoResult] = await asyncio.gather(*(process_one(url) for url in urls))
 
     if not any(r.combined_text for r in results):
         await safe_edit_text(status_message, "❌ Не удалось обработать ни одно видео из проекта.")
@@ -114,7 +113,10 @@ async def process_project(message: Message, urls: List[str]) -> None:
         )
         result_filename = f"project_{uuid.uuid4().hex[:6]}.md"
         result_path = write_result_file(
-            tmp_dir, result_filename, "Конспект проекта", "",
+            tmp_dir,
+            result_filename,
+            "Конспект проекта",
+            "",
             [("Источники", sources_list), ("Конспект", project_summary)],
         )
         await safe_edit_text(status_message, "✅ Конспект проекта готов! Отправляю файл...")

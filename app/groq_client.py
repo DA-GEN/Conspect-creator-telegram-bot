@@ -5,7 +5,6 @@ import base64
 import logging
 import os
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, List, Optional
 
 from groq import Groq
 
@@ -57,7 +56,7 @@ def is_no_visual_info(visual_notes: str) -> bool:
 
 
 def call_llm_with_fallback(
-    messages: List[Dict[str, object]], models: tuple, purpose: str, max_tokens: Optional[int] = None
+    messages: list[dict[str, object]], models: tuple, purpose: str, max_tokens: int | None = None
 ) -> str:
     """Запрос к Groq chat completions с фолбэком на вторую модель при ошибке
     (rate limit, деприкейт модели и т.п.) — общая логика для всех LLM-вызовов.
@@ -69,7 +68,7 @@ def call_llm_with_fallback(
     200 OK с пустым content, без исключения. Такой ответ нельзя молча
     прокидывать дальше (Telegram, например, отказывается слать пустое
     сообщение) — считаем его провалом модели и пробуем следующую."""
-    last_error: Optional[Exception] = None
+    last_error: Exception | None = None
     for model in models:
         try:
             completion = groq_client.chat.completions.create(
@@ -89,10 +88,12 @@ def call_llm_with_fallback(
     raise RuntimeError(f"Не удалось получить ответ от Groq ({purpose}): {last_error}")
 
 
-def analyze_image_batch_sync(transcript: str, image_paths: List[str], label: str) -> str:
+def analyze_image_batch_sync(transcript: str, image_paths: list[str], label: str) -> str:
     """Один запрос к vision-модели Groq на батч картинок (не больше MAX_IMAGES —
     лимит модели за раз). Возвращает NO_VISUAL_INFO, если картинки бесполезны."""
-    prompt = VISUAL_ANALYSIS_PROMPT.format(label=label, transcript=transcript[:MAX_TRANSCRIPT_CHARS_FOR_LLM] or "(пусто)")
+    prompt = VISUAL_ANALYSIS_PROMPT.format(
+        label=label, transcript=transcript[:MAX_TRANSCRIPT_CHARS_FOR_LLM] or "(пусто)"
+    )
     content = [{"type": "text", "text": prompt}] + [
         {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{encode_image_b64(p)}"}}
         for p in image_paths
@@ -103,7 +104,7 @@ def analyze_image_batch_sync(transcript: str, image_paths: List[str], label: str
     )
 
 
-def analyze_images_sync(transcript: str, image_paths: List[str]) -> str:
+def analyze_images_sync(transcript: str, image_paths: list[str]) -> str:
     """Анализирует ВСЕ картинки, а не только первые MAX_IMAGES: за один запрос к
     vision-модели влезает не больше MAX_IMAGES картинок (лимит моделей Groq),
     поэтому при слайдшоу из большего числа фото разбивает их на батчи. Батчи
@@ -115,7 +116,11 @@ def analyze_images_sync(transcript: str, image_paths: List[str]) -> str:
 
     def run_batch(item: tuple) -> str:
         i, batch = item
-        label = f"слайды {i * MAX_IMAGES + 1}-{i * MAX_IMAGES + len(batch)} из {len(image_paths)}" if len(batches) > 1 else "кадры"
+        label = (
+            f"слайды {i * MAX_IMAGES + 1}-{i * MAX_IMAGES + len(batch)} из {len(image_paths)}"
+            if len(batches) > 1
+            else "кадры"
+        )
         return analyze_image_batch_sync(transcript, batch, label)
 
     if len(batches) == 1:
@@ -143,7 +148,10 @@ def summarize_text_sync(text: str) -> str:
     """Просит LLM Groq сделать структурированный конспект одного видео."""
     prompt = SUMMARY_PROMPT.format(text=text[:MAX_TRANSCRIPT_CHARS_FOR_LLM])
     return call_llm_with_fallback(
-        [{"role": "user", "content": prompt}], (LLM_MODEL_PRIMARY, LLM_MODEL_FALLBACK), "конспект", max_tokens=MAX_TOKENS_SUMMARY
+        [{"role": "user", "content": prompt}],
+        (LLM_MODEL_PRIMARY, LLM_MODEL_FALLBACK),
+        "конспект",
+        max_tokens=MAX_TOKENS_SUMMARY,
     )
 
 
@@ -152,7 +160,10 @@ def answer_context_query_sync(instruction: str, text: str) -> str:
     /context) — без общего конспекта, только то, что попросили."""
     prompt = CONTEXT_QUERY_PROMPT.format(instruction=instruction, text=text[:MAX_TRANSCRIPT_CHARS_FOR_LLM])
     return call_llm_with_fallback(
-        [{"role": "user", "content": prompt}], (LLM_MODEL_PRIMARY, LLM_MODEL_FALLBACK), "запрос по видео", max_tokens=MAX_TOKENS_CONTEXT
+        [{"role": "user", "content": prompt}],
+        (LLM_MODEL_PRIMARY, LLM_MODEL_FALLBACK),
+        "запрос по видео",
+        max_tokens=MAX_TOKENS_CONTEXT,
     )
 
 
@@ -168,7 +179,7 @@ def summarize_project_sync(materials: str) -> str:
     )
 
 
-def chat_answer_sync(content: str, history: List[Dict[str, str]], question: str) -> str:
+def chat_answer_sync(content: str, history: list[dict[str, str]], question: str) -> str:
     """Отвечает на вопрос пользователя по сохранённому тексту (транскрипт/конспект),
     учитывая историю диалога."""
     system_prompt = CHAT_SYSTEM_PROMPT.format(content=content[:MAX_TRANSCRIPT_CHARS_FOR_LLM])

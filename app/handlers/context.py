@@ -40,10 +40,7 @@ async def cmd_context(message: Message, command: CommandObject) -> None:
 
     match = URL_REGEX.search(args)
     if not match:
-        await message.answer(
-            "❗ Не нашёл ссылку на видео в сообщении. Формат:\n"
-            "/context <запрос> <ссылка на видео>"
-        )
+        await message.answer("❗ Не нашёл ссылку на видео в сообщении. Формат:\n/context <запрос> <ссылка на видео>")
         return
 
     url = match.group(0)
@@ -80,7 +77,10 @@ async def process_context_query(message: Message, url: str, instruction: str) ->
         await safe_edit_text(status_message, "✅ Готово! Отправляю файл...")
         result_filename = build_result_filename(url)
         result_path = write_result_file(
-            tmp_dir, result_filename, f"Запрос: {instruction}", url,
+            tmp_dir,
+            result_filename,
+            f"Запрос: {instruction}",
+            url,
             [("Ответ", answer)],
         )
         keyboard = register_chat_context(

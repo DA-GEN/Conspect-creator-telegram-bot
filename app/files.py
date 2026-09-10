@@ -2,7 +2,6 @@
 
 import os
 import re
-from typing import List
 
 FILENAME_UNSAFE_REGEX = re.compile(r"[^A-Za-z0-9_-]+")
 
@@ -14,7 +13,7 @@ def build_result_filename(url: str) -> str:
     return f"result_{suffix}.md"
 
 
-def write_result_file(out_dir: str, filename: str, title: str, url: str, sections: List[tuple]) -> str:
+def write_result_file(out_dir: str, filename: str, title: str, url: str, sections: list[tuple]) -> str:
     """Пишет .md-файл с результатом. sections — список (заголовок, текст).
     url — необязательный: для проектов с несколькими источниками строку
     "Источник:" не пишем, а список ссылок передают отдельной секцией."""

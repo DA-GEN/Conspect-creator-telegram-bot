@@ -10,7 +10,6 @@ import subprocess
 import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, List, Optional
 
 from yt_dlp import YoutubeDL
 from yt_dlp.utils import DownloadError
@@ -26,7 +25,7 @@ from app.config import (
 logger = logging.getLogger(__name__)
 
 
-def _grab_frame(video_path: str, out_dir: str, i: int, ts: float) -> Optional[str]:
+def _grab_frame(video_path: str, out_dir: str, i: int, ts: float) -> str | None:
     frame_path = os.path.join(out_dir, f"frame_{i}.jpg")
     try:
         subprocess.run(
@@ -41,7 +40,7 @@ def _grab_frame(video_path: str, out_dir: str, i: int, ts: float) -> Optional[st
     return frame_path if os.path.exists(frame_path) else None
 
 
-def extract_frames_sync(video_path: str, out_dir: str, duration: float, count: int = MAX_IMAGES) -> List[str]:
+def extract_frames_sync(video_path: str, out_dir: str, duration: float, count: int = MAX_IMAGES) -> list[str]:
     """
     Вытаскивает через ffmpeg несколько равномерно распределённых по длительности
     кадров. Каждый кадр — независимый seek+decode одним процессом ffmpeg, поэтому
@@ -64,7 +63,7 @@ def download_url_to_file(url: str, path: str) -> None:
         shutil.copyfileobj(resp, out)
 
 
-def download_tiktok_slideshow_sync(url: str, out_dir: str) -> Dict[str, object]:
+def download_tiktok_slideshow_sync(url: str, out_dir: str) -> dict[str, object]:
     """
     Запасной способ для TikTok-слайдшоу (постов из нескольких фото,
     /photo/<id>) — yt-dlp такие ссылки не поддерживает вообще (падает с
@@ -94,7 +93,7 @@ def download_tiktok_slideshow_sync(url: str, out_dir: str) -> Dict[str, object]:
     with ThreadPoolExecutor(max_workers=min(len(image_urls) + 1, 8)) as executor:
         futures = [
             executor.submit(download_url_to_file, img_url, path)
-            for img_url, path in zip(image_urls, image_paths)
+            for img_url, path in zip(image_urls, image_paths, strict=True)
         ]
         if music_url:
             futures.append(executor.submit(download_url_to_file, music_url, audio_path))
@@ -104,7 +103,7 @@ def download_tiktok_slideshow_sync(url: str, out_dir: str) -> Dict[str, object]:
     return {"audio_path": audio_path, "image_paths": image_paths, "is_slideshow": True}
 
 
-def download_media_via_ytdlp_sync(url: str, out_dir: str) -> Dict[str, object]:
+def download_media_via_ytdlp_sync(url: str, out_dir: str) -> dict[str, object]:
     """
     Скачивает видео целиком, если у платформы есть видеопоток (нужно для
     визуального анализа кадров), иначе — только аудио (например,
@@ -160,7 +159,7 @@ def download_media_via_ytdlp_sync(url: str, out_dir: str) -> Dict[str, object]:
     return {"audio_path": audio_path, "image_paths": image_paths, "is_slideshow": False}
 
 
-def download_media_sync(url: str, out_dir: str) -> Dict[str, object]:
+def download_media_sync(url: str, out_dir: str) -> dict[str, object]:
     """Выполняется в отдельном потоке, т.к. и yt-dlp, и urllib — блокирующие.
     Основной путь — yt-dlp; для TikTok-слайдшоу (которые yt-dlp не умеет
     скачивать) — фолбэк через tikwm.com."""

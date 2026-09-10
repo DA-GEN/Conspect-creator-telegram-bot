@@ -46,7 +46,10 @@ async def process_single_video(message: Message, url: str) -> None:
             # проход через LLM-конспект тут не нужен — самих слайдов достаточно.
             await safe_edit_text(status_message, "✅ Готово! Отправляю файл...")
             result_path = write_result_file(
-                tmp_dir, result_filename, "Визуальное описание", url,
+                tmp_dir,
+                result_filename,
+                "Визуальное описание",
+                url,
                 [("Визуальное описание", result.combined_text)],
             )
             keyboard = register_chat_context(result.combined_text, "этому описанию")
@@ -59,11 +62,16 @@ async def process_single_video(message: Message, url: str) -> None:
         except Exception as exc:  # noqa: BLE001
             logger.exception("Ошибка создания конспекта через Groq LLM")
             result_path = write_result_file(
-                tmp_dir, result_filename, "Материал", url,
+                tmp_dir,
+                result_filename,
+                "Материал",
+                url,
                 [("Материал", result.combined_text)],
             )
             keyboard = register_chat_context(result.combined_text, "этому материалу")
-            await safe_edit_text(status_message, f"❌ Не удалось создать конспект: {exc}\n\nВот необработанный материал:")
+            await safe_edit_text(
+                status_message, f"❌ Не удалось создать конспект: {exc}\n\nВот необработанный материал:"
+            )
             await status_message.answer_document(FSInputFile(result_path), reply_markup=keyboard)
             return
 
@@ -109,8 +117,7 @@ async def handle_link(message: Message) -> None:
 
     if not urls:
         await message.answer(
-            "❗ Это не похоже на ссылку. Пришли, пожалуйста, прямую ссылку на видео "
-            "(YouTube, TikTok или Instagram)."
+            "❗ Это не похоже на ссылку. Пришли, пожалуйста, прямую ссылку на видео (YouTube, TikTok или Instagram)."
         )
         return
 

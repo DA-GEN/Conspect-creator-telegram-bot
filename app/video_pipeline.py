@@ -8,7 +8,6 @@ import os
 import shutil
 import tempfile
 import time
-from typing import List, Optional
 
 from yt_dlp.utils import DownloadError
 
@@ -57,14 +56,18 @@ async def gather_video_data(url: str, on_status: StatusCallback = None) -> Video
         except DownloadError as exc:
             logger.error("yt-dlp не смог скачать %s: %s", url, exc)
             if TIKTOK_PHOTO_URL_REGEX.search(str(exc)):
-                return VideoResult(url=url, error="не удалось получить фото из TikTok-слайдшоу (не сработал и запасной способ)")
-            return VideoResult(url=url, error="не удалось скачать (приватное, удалено или платформа заблокировала запрос)")
+                return VideoResult(
+                    url=url, error="не удалось получить фото из TikTok-слайдшоу (не сработал и запасной способ)"
+                )
+            return VideoResult(
+                url=url, error="не удалось скачать (приватное, удалено или платформа заблокировала запрос)"
+            )
         except Exception:  # noqa: BLE001 — не должны падать из-за сети/провайдера
             logger.exception("Неожиданная ошибка при скачивании %s", url)
             return VideoResult(url=url, error="непредвиденная ошибка при скачивании")
 
-        audio_path: Optional[str] = media["audio_path"]
-        image_paths: List[str] = media["image_paths"]
+        audio_path: str | None = media["audio_path"]
+        image_paths: list[str] = media["image_paths"]
         is_slideshow: bool = media.get("is_slideshow", False)
 
         if not audio_path and not image_paths:
@@ -79,7 +82,9 @@ async def gather_video_data(url: str, on_status: StatusCallback = None) -> Video
                 audio_path = None
 
             if audio_path and file_size > MAX_AUDIO_BYTES:
-                logger.warning("Аудиодорожка %s больше лимита Groq (%.2f МБ) — пропускаю", audio_path, file_size / 1024 / 1024)
+                logger.warning(
+                    "Аудиодорожка %s больше лимита Groq (%.2f МБ) — пропускаю", audio_path, file_size / 1024 / 1024
+                )
                 audio_path = None
 
         transcript = ""

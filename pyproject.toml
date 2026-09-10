@@ -1,0 +1,20 @@
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+# E/F — стандартные ошибки pycodestyle/pyflakes, I — сортировка импортов,
+# UP — современный синтаксис (pyupgrade), B — типичные баги (bugbear).
+select = ["E", "F", "I", "UP", "B"]
+ignore = [
+    "E501",  # длина строки — в коде много описательных русскоязычных
+             # промптов/комментариев, которые не имеет смысла принудительно
+             # переносить; форматирование реального кода уже покрыто `ruff format`
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

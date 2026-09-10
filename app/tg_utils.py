@@ -1,7 +1,5 @@
 """Мелкие утилиты для работы с Telegram API."""
 
-from typing import List
-
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import Message
 
@@ -21,14 +19,14 @@ async def safe_edit_text(message: Message, text: str) -> None:
             raise
 
 
-def split_for_telegram(text: str, limit: int = TELEGRAM_MESSAGE_LIMIT) -> List[str]:
+def split_for_telegram(text: str, limit: int = TELEGRAM_MESSAGE_LIMIT) -> list[str]:
     """Режет длинный текст на части не длиннее limit — иначе Telegram просто
     отклонит сообщение (message is too long). Старается резать по границам
     строк, потом слов, и только в крайнем случае — посередине."""
     if len(text) <= limit:
         return [text]
 
-    chunks: List[str] = []
+    chunks: list[str] = []
     remaining = text
     while remaining:
         if len(remaining) <= limit:

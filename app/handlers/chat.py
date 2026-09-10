@@ -2,7 +2,6 @@
 
 import asyncio
 import logging
-from typing import Dict, List
 
 from aiogram import F, Router
 from aiogram.filters import Command
@@ -31,15 +30,13 @@ async def handle_chat_question(message: Message, question: str) -> None:
     await message.bot.send_chat_action(message.chat.id, "typing")
 
     try:
-        answer = await asyncio.to_thread(
-            chat_answer_sync, session["content"], session["history"], question
-        )
+        answer = await asyncio.to_thread(chat_answer_sync, session["content"], session["history"], question)
     except Exception as exc:  # noqa: BLE001
         logger.exception("Ошибка чата с Groq")
         await message.answer(f"❌ Не удалось получить ответ: {exc}")
         return
 
-    history: List[Dict[str, str]] = session["history"]
+    history: list[dict[str, str]] = session["history"]
     history.append({"role": "user", "content": question})
     history.append({"role": "assistant", "content": answer})
     del history[:-MAX_CHAT_HISTORY_MESSAGES]
@@ -69,6 +66,5 @@ async def handle_start_chat(callback: CallbackQuery) -> None:
         "history": [],
     }
     await status_message.answer(
-        f"💬 Режим чата активирован — задавай вопросы по {ctx['title']}.\n"
-        "Чтобы выйти, отправь /endchat."
+        f"💬 Режим чата активирован — задавай вопросы по {ctx['title']}.\nЧтобы выйти, отправь /endchat."
     )
